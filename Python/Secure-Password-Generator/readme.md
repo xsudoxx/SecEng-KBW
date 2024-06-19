@@ -39,5 +39,17 @@ secure_password_generator/
 ├── README.md                 # Project documentation
 ├── LICENSE                   # License file (e.g., MIT License)
 └── requirements.txt          # List of dependencies
+````
 
+## Example Usage
+````
+python password_generator.py -l 16 -s
+````
+-l, --length: Specifies the length of the password. In this example, we set it to 16 characters.
+-s, --symbols: Indicates that symbols should be included in the generated password
+
+## Example Output
+````
+Generated Password: hE$1M^t2P9F!gS#7B
+Password copied to clipboard.
 ````
