@@ -8,6 +8,7 @@ This script generates strong, random passwords based on user defined criteria. I
 import string
 import secrets
 import argparse
+import pyperclip
 
 DEFAULT_PASSWORD_LENGTH = 12
 
@@ -19,5 +20,11 @@ def generate_password(length = DEFAULT_PASSWORD_LENGTH):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate a secure random password')
-    password = generate_password(16)
+    parser.add_argument('-l','--length', type=int, default=DEFAULT_PASSWORD_LENGTH, help='Length of the password (default: 12)')
+
+    args = parser.parse_args()
+    password = generate_password(length=args.length)
+
+    pyperclip.copy(password)
     print(f'Generated Password: {password}')
+    print('Password copied to clipboard')
