@@ -28,7 +28,7 @@ The Secure Password Generator is a Python script that generates strong, random p
 Install the required dependencies using pip3:
 
 ````
-pip install pyperclip
+pip3 install -r requirements.txt
 ````
 
 ## File Structure
@@ -43,10 +43,9 @@ secure_password_generator/
 
 ## Example Usage
 ````
-python password_generator.py -l 16 -s
+python password_generator.py -l 16
 ````
 -l, --length: Specifies the length of the password. In this example, we set it to 16 characters.
--s, --symbols: Indicates that symbols should be included in the generated password
 
 ## Example Output
 ````
