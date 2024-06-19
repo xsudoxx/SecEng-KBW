@@ -41,7 +41,7 @@ secure_password_generator/
 
 ## Example Usage
 ````
-python password_generator.py -l 16
+python3 password_generator.py -l 16
 ````
 -l, --length: Specifies the length of the password. In this example, we set it to 16 characters.
 
