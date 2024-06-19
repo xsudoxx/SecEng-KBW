@@ -11,7 +11,8 @@ import random
 DEFAULT_PASSWORD_LENGTH = 12
 
 def generate_password(length = DEFAULT_PASSWORD_LENGTH):
-    random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
+    
+    random_string = ''.join(random.choices(string.ascii_letters, k=length))
     print(random_string)
 
 
