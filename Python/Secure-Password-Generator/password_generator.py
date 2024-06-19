@@ -18,5 +18,6 @@ def generate_password(length = DEFAULT_PASSWORD_LENGTH):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Generate a secure random password')
     password = generate_password(16)
     print(f'Generated Password: {password}')
