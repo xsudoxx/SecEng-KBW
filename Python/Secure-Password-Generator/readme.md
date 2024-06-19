@@ -34,10 +34,8 @@ pip3 install -r requirements.txt
 ## File Structure
 ````
 secure_password_generator/
-│
 ├── password_generator.py     # Main script for generating passwords
 ├── README.md                 # Project documentation
-├── LICENSE                   # License file (e.g., MIT License)
 └── requirements.txt          # List of dependencies
 ````
 
