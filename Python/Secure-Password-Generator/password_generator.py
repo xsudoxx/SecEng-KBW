@@ -7,14 +7,16 @@ This script generates strong, random passwords based on user defined criteria. I
 """
 import string
 import secrets
+import argparse
 
 DEFAULT_PASSWORD_LENGTH = 12
 
 def generate_password(length = DEFAULT_PASSWORD_LENGTH):
     random_password = ''.join(secrets.choice(string.ascii_letters + string.digits + string.punctuation)
                               for i in range(length))
-    print(random_password)
+    return random_password
 
 
 if __name__ == "__main__":
-    generate_password()
+    password = generate_password(16)
+    print(f'Generated Password: {password}')
