@@ -6,49 +6,68 @@ This project aims to provide a practical implementation of file security, ensuri
 """
 
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
 import argparse
 import os
+import base64
 
-def generate_key():
+def derive_key_from_passphrase(passphrase):
     """
-    Generate a key for encryption and save it to a file
+    Derive a key from the provided passphrase using PBKDF2HMAC
     """
+    salt = b'\x1f\x87\xef\x3e\x4c\x92\xaf\xb3'  # You should generate a new random salt for each key
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend()
+    )
+    key = base64.urlsafe_b64encode(kdf.derive(passphrase.encode()))
+    return key
 
-    key = Fernet.generate_key()
+def generate_key(passphrase):
+    """
+    Generate a key for encryption based on the passphrase and save it to a file
+    """
+    key = derive_key_from_passphrase(passphrase)
     with open('filekey.key', 'wb') as filekey:
         filekey.write(key)
 
-    return key
-
-def load_key():
+def load_key(passphrase):
     """
-    Load the key from the current directory named `filekey.key`
+    Load the key from the current directory named `filekey.key` and validate it using the passphrase
     """
+    stored_key = open('filekey.key', 'rb').read()
+    derived_key = derive_key_from_passphrase(passphrase)
+    if stored_key != derived_key:
+        raise ValueError("Incorrect passphrase")
+    return derived_key
 
-    return open('filekey.key', 'rb').read()
-
-def encrypt_file(file_path):
+def encrypt_file(file_path, passphrase):
     """
     Encrypt the file and write it back to the same location
     """
-    key = load_key()
+    key = load_key(passphrase)
     fernet = Fernet(key)
 
     with open(file_path, 'rb') as file:
-        orginal = file.read()
+        original = file.read()
 
-    encrypted = fernet.encrypt(orginal)
+    encrypted = fernet.encrypt(original)
 
-    with open(file_path, 'wb') as encrypt_file:
-        encrypt_file.write(encrypted)
+    with open(file_path, 'wb') as encrypted_file:
+        encrypted_file.write(encrypted)
 
-    print(f"file '{file_path} encrypted successfully'")
+    print(f"File '{file_path}' encrypted successfully.")
 
-def decrypt_file(file_path):
+def decrypt_file(file_path, passphrase):
     """
-    Decrypte the file and write it back to the same location
+    Decrypt the file and write it back to the same location
     """
-    key = load_key()
+    key = load_key(passphrase)
     fernet = Fernet(key)
 
     with open(file_path, 'rb') as enc_file:
@@ -58,17 +77,18 @@ def decrypt_file(file_path):
 
     with open(file_path, 'wb') as decrypted_file:
         decrypted_file.write(decrypted)
-    print(f"File '{file_path}' decrypted successfully")
 
+    print(f"File '{file_path}' decrypted successfully.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Encrypt or Decrypt files using AES-256 encryption.")
-    parser.add_argument('mode', choices=['encrypt','decrypt'], help="Mode = 'encrypt' or 'decrypt'")
-    parser.add_argument('file',help="Path to the file to encrypt or decrypt")
+    parser = argparse.ArgumentParser(description="Encrypt or Decrypt files using a passphrase-based key.")
+    parser.add_argument('mode', choices=['encrypt', 'decrypt'], help="Mode: 'encrypt' or 'decrypt'")
+    parser.add_argument('file', help="Path to the file to encrypt or decrypt")
+    parser.add_argument('passphrase', help="Passphrase for key generation and validation")
 
     args = parser.parse_args()
 
     if args.mode == 'encrypt':
-        encrypt_file(args.file)
+        encrypt_file(args.file, args.passphrase)
     elif args.mode == 'decrypt':
-        decrypt_file(args.file)
+        decrypt_file(args.file, args.passphrase)

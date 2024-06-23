@@ -9,10 +9,16 @@ Welcome to the Secure File Encryption and Decryption Tool project! This Python-b
 - **Password-based Encryption**: User-defined passphrase for encryption and decryption.
 - **Error Handling**: Robust error handling for file operations and cryptographic functions.
 
-## install dependencies
+## installation
+### install dependencies
 ````
 pip3 install -r requirements.txt
 ````
+### Generate an Encryption Key:
+````
+python3 -c "from file_enc_dec import generate_key; generate_key()"
+````
+
 
 ## Usage
 ## Encrypting a File
