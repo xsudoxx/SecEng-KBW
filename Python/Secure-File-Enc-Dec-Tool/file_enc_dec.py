@@ -13,11 +13,10 @@ import argparse
 import os
 import base64
 
-def derive_key_from_passphrase(passphrase):
+def derive_key_from_passphrase(passphrase, salt):
     """
     Derive a key from the provided passphrase using PBKDF2HMAC
     """
-    salt = b'\x1f\x87\xef\x3e\x4c\x92\xaf\xb3'  # You should generate a new random salt for each key
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -30,21 +29,34 @@ def derive_key_from_passphrase(passphrase):
 
 def generate_key(passphrase):
     """
-    Generate a key for encryption based on the passphrase and save it to a file
+    Generate a key for encryption, encrypt it with the passphrase, and save it to a file
     """
-    key = derive_key_from_passphrase(passphrase)
+    key = Fernet.generate_key()
+    salt = os.urandom(16)  # Generate a random salt
+    derived_key = derive_key_from_passphrase(passphrase, salt)
+    fernet = Fernet(derived_key)
+    
+    encrypted_key = fernet.encrypt(key)
+    
     with open('filekey.key', 'wb') as filekey:
-        filekey.write(key)
+        filekey.write(salt + encrypted_key)  # Store the salt and the encrypted key
+
+    print("Key generated and saved to 'filekey.key'.")
 
 def load_key(passphrase):
     """
-    Load the key from the current directory named `filekey.key` and validate it using the passphrase
+    Load the encrypted key from the file, decrypt it using the passphrase, and return the decrypted key
     """
-    stored_key = open('filekey.key', 'rb').read()
-    derived_key = derive_key_from_passphrase(passphrase)
-    if stored_key != derived_key:
-        raise ValueError("Incorrect passphrase")
-    return derived_key
+    with open('filekey.key', 'rb') as filekey:
+        data = filekey.read()
+    salt = data[:16]  # Extract the salt
+    encrypted_key = data[16:]  # Extract the encrypted key
+    
+    derived_key = derive_key_from_passphrase(passphrase, salt)
+    fernet = Fernet(derived_key)
+    
+    key = fernet.decrypt(encrypted_key)
+    return key
 
 def encrypt_file(file_path, passphrase):
     """
@@ -81,14 +93,22 @@ def decrypt_file(file_path, passphrase):
     print(f"File '{file_path}' decrypted successfully.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Encrypt or Decrypt files using a passphrase-based key.")
-    parser.add_argument('mode', choices=['encrypt', 'decrypt'], help="Mode: 'encrypt' or 'decrypt'")
-    parser.add_argument('file', help="Path to the file to encrypt or decrypt")
+    parser = argparse.ArgumentParser(description="Encrypt or Decrypt files using a passphrase-protected key.")
+    parser.add_argument('mode', choices=['generate-key', 'encrypt', 'decrypt'], help="Mode: 'generate-key', 'encrypt', or 'decrypt'")
+    parser.add_argument('file', nargs='?', help="Path to the file to encrypt or decrypt")
     parser.add_argument('passphrase', help="Passphrase for key generation and validation")
 
     args = parser.parse_args()
 
-    if args.mode == 'encrypt':
-        encrypt_file(args.file, args.passphrase)
+    if args.mode == 'generate-key':
+        generate_key(args.passphrase)
+    elif args.mode == 'encrypt':
+        if args.file:
+            encrypt_file(args.file, args.passphrase)
+        else:
+            print("Error: You must specify the file to encrypt.")
     elif args.mode == 'decrypt':
-        decrypt_file(args.file, args.passphrase)
+        if args.file:
+            decrypt_file(args.file, args.passphrase)
+        else:
+            print("Error: You must specify the file to decrypt.")

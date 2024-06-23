@@ -16,7 +16,7 @@ pip3 install -r requirements.txt
 ````
 ### Generate an Encryption Key:
 ````
-python3 -c "from file_enc_dec import generate_key; generate_key()"
+python3 file_enc_dec.py generate-key your_passphrase
 ````
 
 
@@ -24,14 +24,14 @@ python3 -c "from file_enc_dec import generate_key; generate_key()"
 ## Encrypting a File
 To encrypt a file, run the following command:
 ````
-python3 encrypt.py -f <path_to_file> -p <passphrase>
+python3 file_enc_dec.py encrypt path_to_your_file your_passphrase
 ````
 Replace <path_to_file> with the path to the file you want to encrypt.
 Replace <passphrase> with your chosen passphrase for encryption.
 ## Decrypting a File
 To decrypt an encrypted file, use the following command:
 ````
-python3 decrypt.py -f <path_to_encrypted_file> -p <passphrase>
+python3 file_enc_dec.py decrypt path_to_your_file your_passphrase
 ````
 Replace <path_to_encrypted_file> with the path to the encrypted file.
 Use the same <passphrase> used during encryption.
